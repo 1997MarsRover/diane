@@ -3,6 +3,7 @@ import json
 import time
 import signal
 from enum import Enum
+from fuzzcounter import FuzzCounterArgFuzzer
 from src.sniffer.sniffer import Sniffer
 from src.sniffer.bltlog_analyzer import BltLogAnalyzer
 from src.methods_finder import SendFinder, SweetSpotFinder
@@ -92,6 +93,10 @@ class IoTFuzzer:
         log.debug("Building ArgFuzzer")
         self.arg_fuzzer = ArgFuzzer(config, hooker=self.hooker)
         log.debug("Done.")
+        
+        log.debug("Building Fuzz Counter ArgFuzzer")
+        self.fuzz_counter_arg_fuzzer = FuzzCounterArgFuzzer(config, hooker=self.hooker)
+        log.debug("Done.")
 
         signal.signal(signal.SIGINT, self.signal_handler)
 
@@ -169,6 +174,10 @@ class IoTFuzzer:
 
         for function_to_fuzz in self.automated_senders:
             self.arg_fuzzer.start(function_to_fuzz, ran_fun=self.adbd.replay_ui_async, lifter=self.lifter)
+
+        # Print the fuzz count for each function
+        log.info("Fuzz count for each function:")
+        log.info(self.fuzz_counter_arg_fuzzer.get_fuzz_count())
 
         log.info("Fuzzing done!")
 
