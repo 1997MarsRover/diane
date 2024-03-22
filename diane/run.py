@@ -71,7 +71,13 @@ class IoTFuzzer:
         log.debug("Done.")
 
         log.debug("Building Sniffer")
-        self.sniffer = Sniffer(config)
+        sniffer_config = {
+            'android_ip': config['android_ip'],
+            'device_ip': config['device_ip'],
+            'ip_hot_spot': config['ip_hot_spot'],
+            'pass_ap': config['pass_ap']
+            }
+        self.sniffer = Sniffer(sniffer_config)
         log.debug("Done.")
 
         log.debug("Building BltLogAnalyzer")
