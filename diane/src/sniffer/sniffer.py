@@ -11,21 +11,15 @@ logging.basicConfig()
 log = logging.getLogger("Sniffer")
 log.setLevel(logging.DEBUG)
 
-SNIFF_SCRIPT = "./sniff.sh"
-ALL_TRAFFIC_PCAP_SCRIPT = "./dump_to_pcap.sh"
-FIFO_PIPE = "/tmp/sniff_data"
-SNIFFING_TIME_SEC = 60 * 30
-KEEPALIVE_TIMEOUT_SEC = 60 * 1
-SYNC_SNIFFING = False
-
 
 class StopCapturing(Exception):
     pass
 
 
 class Sniffer:
-    def __init__(self, config):
-        global SYNC_SNIFFING
+    def __init__(self, config, sniff_script="./sniff.sh", all_traffic_pcap_script="./dump_to_pcap.sh",
+                 fifo_pipe="/tmp/sniff_data", sniffing_time_sec=60 * 30, keepalive_timeout_sec=60 * 1,
+                 keepalive_threshold=0.5):
         self.android_ip = config['android_ip']
         self.device_ip = config['device_ip']
         self.ip_hotspot = config['ip_hot_spot']
@@ -34,7 +28,15 @@ class Sniffer:
         self.timer = None
         self.sniffing = False
         self.pids = []
-        SYNC_SNIFFING = False
+
+        self.sniff_script = sniff_script
+        self.all_traffic_pcap_script = all_traffic_pcap_script
+        self.fifo_pipe = fifo_pipe
+        self.sniffing_time_sec = sniffing_time_sec
+        self.keepalive_timeout_sec = keepalive_timeout_sec
+        self.keepalive_threshold = keepalive_threshold
+
+        self.sync_sniffing = False
         signal.signal(signal.SIGUSR2, self.terminate)
 
     def __enter__(self):
@@ -44,44 +46,48 @@ class Sniffer:
         self.clean()
         if exception_type == StopCapturing:
             return True
-
-    def clean(self):
-        # Some cleaning
-        if self.timer is not None and self.timer.is_alive():
-            self.timer.terminate()
-
-        # kill local process
-        cmd = "killall -s 9 sniff.sh"
+            
+    def execute_killall(self, process_name):
+        cmd = f"killall -s 9 {process_name}"
         while True:
             p = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE, shell=True)
             _, e = p.communicate()
             if e:
                 break
 
+     def clean(self):
+        # Some cleaning
+        if self.timer is not None and self.timer.is_alive():
+            self.timer.terminate()
+
+        # kill local process
+        self.execute_killall("sniff.sh")
+
         # kill remote tcpdump
         if not self.pids:
             log.debug("Killing all tcpdump processes")
-            cmd = 'sshpass -p {} ssh root@{} "killall tcpdump"'.format(self.pass_ap, self.ip_hotspot)
+            cmd = f'sshpass -p {self.pass_ap} ssh root@{self.ip_hotspot} "killall tcpdump"'
             p = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE, shell=True)
             p.communicate()
         else:
             for p in self.pids:
-                log.debug("Killing tcpdump pid: " + p)
-                cmd = 'sshpass -p {} ssh root@{} "kill -9 {}"'.format(self.pass_ap, self.ip_hotspot, p)
+                log.debug(f"Killing tcpdump pid: {p}")
+                cmd = f'sshpass -p {self.pass_ap} ssh root@{self.ip_hotspot} "kill -9 {p}"'
                 while True:
                     p = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE, shell=True)
                     _, e = p.communicate()
                     if e:
                         break
 
+
     def timeout(self, sec):
         time.sleep(sec)
         os.kill(os.getppid(), signal.SIGUSR2)
 
     def detect_keepalive(self):
-        sizes = {}
         try:
-            for p in self.sniff_packets(sniffing_time=KEEPALIVE_TIMEOUT_SEC):
+            sizes = {}
+            for p in self.sniff_packets(sniffing_time=self.keepalive_timeout_sec):
                 regex = re.compile(".*length ([0-9]*):")
                 match = regex.match(p)
                 if match:
@@ -89,20 +95,19 @@ class Sniffer:
                     if eth_len not in sizes:
                         sizes[eth_len] = 0
                     sizes[eth_len] += 1
-                    log.info("Packet of length {} sniffed".format(str(eth_len)))
-        except:
-            log.info('detecting keealive: Stop capturing')
+                    log.info(f"Packet of length {eth_len} sniffed")
+
+            tot_bytes = sum([x for x in sizes.values()])
+            for eth_len, count in sizes.items():
+                if count / float(tot_bytes) < self.keepalive_threshold:
+                    continue
+                filter_ = f"'(greater {eth_len + 1} or less {eth_len - 1})'"
+                if filter_ not in self.keep_alive_filters:
+                    self.keep_alive_filters.append(filter_)
+        except Exception as e:
+            log.error(f"Error detecting keepalive: {str(e)}")
             self.clean()
-
-        tot_bytes = sum([x for x in sizes.values()])
-        for eth_len, count in sizes.items():
-            # we assume a keep alive should be sent at least one a second
-            if count / float(tot_bytes) < 0.5:
-                continue
-            filter = "\"'(greater {} or less {})'\"".format(str(eth_len + 1), str(eth_len - 1))
-            if filter not in self.keep_alive_filters:
-                self.keep_alive_filters.append(filter)
-
+            raise
     def apply_keepalive_filters(self):
         if not self.keep_alive_filters:
             return ''
