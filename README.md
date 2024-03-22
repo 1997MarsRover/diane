@@ -6,84 +6,121 @@ Diane is a fuzzer designed for IoT devices. It functions by identifying fuzzing 
 ```bash
 diane/
 │
-├── src/
-│   ├── arg_fuzzer/
-│   │   ├── arg_values/
-│   │   │   ├── keyhunter/
-│   │   │   │   ├── tests/
-│   │   │   │   │   └── 01/
-│   │   │   │   │       └── out/
-│   │   │   │   │           └── test01
-│   │   │   │   │
-│   │   │   │   ├── __init__.py
-│   │   │   │   ├── formatted_values.py
-│   │   │   │   ├── ida_extract_keys.py
-│   │   │   │   ├── key_hunter.py
-│   │   │   │   ├── key_strings.txt
-│   │   │   │   └── utils.py
-│   │   │   │
-│   │   │   ├── __init__.py
-│   │   │   ├── arg_fuzzer.py
-│   │   │   └── pcapreader/
-│   │   │       ├── __init__.py
-│   │   │       ├── http.py
-│   │   │       ├── pcapreader.py
-│   │   │       └── usage.py
-│   │   │
-│   │   ├── __init__.py
-│   │   ├── arg_fuzzer.py
-│   │   └── values.py
-│   │
-│   ├── clusterizer/
-│   │   ├── __init__.py
-│   │   └── clusterizer.py
-│   │
-│   ├── frida_hooker/
-│   │   ├── __init__.py
-│   │   ├── base_script.js
-│   │   ├── exports.js
-│   │   ├── frida_hooker.py
-│   │   └── object_setter.js
-│   │
-│   ├── methods_finder/
-│   │   ├── __init__.py
-│   │   ├── clusterizer/
-│   │   │   ├── __init__.py
-│   │   │   └── clusterizer.py
-│   │   ├── send_finder.py
-│   │   └── sweet_spot_finder.py
-│   │
-│   ├── node_filter/
-│   │   ├── __init__.py
-│   │   └── node_filter.py
-│   │
-│   ├── sniffer/
-│   │   ├── __init__.py
-│   │   ├── bltlog_analyzer.py
-│   │   ├── dump_to_pcap.sh
-│   │   ├── sniff.sh
-│   │   └── sniffer.py
-│   │
-│   └── ui/
-│       ├── __init__.py
-│       ├── config.py
-│       ├── core.py
-│       ├── README.md
-│       └── RERAN/
-│           ├── replay
-│           └── translate.jar
+├── __init__.py
+├── fuzzcounter.py
+├── requirements.txt
+├── run.py
 │
-├── evaluation/
-│   └── scalability/
-│       └── sweet_spot/
-│           └── tool/
-│               ├── __init__.py
-│               ├── sender_find.py
-│               ├── sweet_spot_finder.py
-│               └── sweet_spot_finder_angr.py
-│
-├── README.md
-└── requirements.txt
+└── src/
+    │
+    ├── __init__.py
+    ├── arg_fuzzer/
+    │   │
+    │   ├── __init__.py
+    │   ├── arg_fuzzer.py
+    │   ├── arg_values/
+    │   │   │
+    │   │   ├── __init__.py
+    │   │   ├── formatted_values.py
+    │   │   ├── keyhunter/
+    │   │   │   │
+    │   │   │   ├── __init__.py
+    │   │   │   ├── ida_extract_keys.py
+    │   │   │   ├── key_hunter.py
+    │   │   │   ├── key_strings.txt
+    │   │   │   ├── tests/
+    │   │   │   │   │
+    │   │   │   │   ├── 01/
+    │   │   │   │   │   │
+    │   │   │   │   │   ├── Makefile
+    │   │   │   │   │   ├── out/
+    │   │   │   │   │   │   │
+    │   │   │   │   │   │   ├── test01
+    │   │   │   │   │   │   │
+    │   │   │   │   │   │   └── test01.c
+    │   │   │   │   │   │
+    │   │   │   │   │   └── out/
+    │   │   │   │   │
+    │   │   │   │   └── __init__.py
+    │   │   │   │
+    │   │   │   └── utils.py
+    │   │   │
+    │   │   ├── pcapreader/
+    │   │   │   │
+    │   │   │   ├── __init__.py
+    │   │   │   ├── http.py
+    │   │   │   ├── pcapreader.py
+    │   │   │   └── usage.py
+    │   │   │
+    │   │   └── random_values.py
+    │   │
+    │   └── values.py
+    │
+    ├── crash_detector/
+    │   │
+    │   ├── __init__.py
+    │   ├── base_detector.py
+    │   ├── pcap_analysis/
+    │   │   │
+    │   │   ├── __init__.py
+    │   │   │
+    │   │   └── pcap_base_detector.py
+    │   │
+    │   └── __init__.py
+    │
+    ├── frida_hooker/
+    │   │
+    │   ├── __init__.py
+    │   ├── base_script.js
+    │   ├── exports.js
+    │   ├── frida_hooker.py
+    │   └── object_setter.js
+    │
+    ├── methods_finder/
+    │   │
+    │   ├── __init__.py
+    │   ├── clusterizer/
+    │   │   │
+    │   │   ├── __init__.py
+    │   │   └── clusterizer.py
+    │   │
+    │   ├── send_finder.py
+    │   └── sweet_spot_finder.py
+    │
+    ├── node_filter/
+    │   │
+    │   ├── __init__.py
+    │   └── node_filter.py
+    │
+    ├── sanity_check/
+    │   │
+    │   ├── helper.py
+    │   ├── run_worker.sh
+    │   ├── sanity_check.py
+    │   ├── schedule_on_celery.py
+    │   ├── setup_env.sh
+    │   ├── viewer.py
+    │   └── worker.py
+    │
+    ├── sniffer/
+    │   │
+    │   ├── __init__.py
+    │   ├── bltlog_analyzer.py
+    │   ├── dump_to_pcap.sh
+    │   ├── sniff.sh
+    │   └── sniffer.py
+    │
+    └── ui/
+        │
+        ├── __init__.py
+        ├── config.py
+        ├── core.py
+        ├── README.md
+        └── RERAN/
+            │
+            ├── replay
+            └── translate.jar
+
 ```
 ##Dependencies
 
