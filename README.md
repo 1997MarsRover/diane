@@ -1,4 +1,4 @@
-# Diane
+ # Diane
 
 Diane is a fuzzer designed for IoT devices. It functions by identifying fuzzing triggers within IoT companion apps to generate valid yet under-constrained inputs. Our key insight is the presence of functions within these apps that execute after input validation but before data-transforming functions like network serialization.
 
@@ -122,7 +122,7 @@ diane/
             └── translate.jar
 
 ```
-##Dependencies
+## Dependencies
 
 To run Diane successfully, ensure you have the following dependencies installed:
 
