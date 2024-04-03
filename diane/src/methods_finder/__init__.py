@@ -1,2 +1,2 @@
 from .send_finder import SendFinder
-from .sweet_spot_finder import SweetSpotFinders
+from .sweet_spot_finder import SweetSpotFinder
