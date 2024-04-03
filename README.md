@@ -173,7 +173,7 @@ The results of the fuzzing process will be saved in the output directory.
 Our approach and findings are detailed in the research paper:
 
 **DIANE: Identifying Fuzzing Triggers in Apps to Generate Under-constrained Inputs for IoT Devices**  
-[PDF](link-to-your-pdf)
+[PDF](https://conand.me/publications/redini-diane-2021.pdf)
 
 *Nilo Redini, Andrea Continella, Dipanjan Das, Giulio De Pasquale, Noah Spahn, Aravind Machiry, Antonio Bianchi, Christopher Kruegel, Giovanni Vigna.*  
 *In Proceedings of the IEEE Symposium on Security & Privacy (S&P), May 2021*
@@ -191,5 +191,3 @@ If you utilize Diane in a scientific publication, we kindly request citations us
 ```
 
 ---
-
-Please replace `link-to-your-pdf` in the research paper section with the actual link to your PDF file or provide instructions for accessing it.
