@@ -12,6 +12,8 @@ from src.ui.core import ADBDriver
 from src.arg_fuzzer.arg_fuzzer import ArgFuzzer
 from pysoot.lifter import Lifter
 from node_filter.node_filter import NodeFilter
+import coverage
+from multiprocessing import Pool
 
 import logging
 
@@ -169,23 +171,54 @@ class IoTFuzzer:
         log.info("Starting fuzzing")
         self.phase = Phase.FUZZING
 
-        for function_to_fuzz in self.senders:
-            self.arg_fuzzer.start(function_to_fuzz, fast_fuzz=True, ran_fun=self.adbd.replay_ui_async, lifter=self.lifter)
+        # Create a coverage object
+        cov = coverage.Coverage()
+        cov.start()
 
-        for function_to_fuzz in self.senders:
-            self.arg_fuzzer.start(function_to_fuzz, ran_fun=self.adbd.replay_ui_async, lifter=self.lifter)
+        # Create a pool of worker processes
+        pool = Pool(processes=self.config.get('num_processes', 4))
 
+        # Prepare the list of functions to fuzz
+        functions_to_fuzz = []
+
+        # Fast fuzzing for senders
+        for function_to_fuzz in self.senders:
+            functions_to_fuzz.append((function_to_fuzz, True, self.adbd.replay_ui_async, self.lifter))
+
+        # Regular fuzzing for senders
+        for function_to_fuzz in self.senders:
+            functions_to_fuzz.append((function_to_fuzz, False, self.adbd.replay_ui_async, self.lifter))
+
+        # Regular fuzzing for sweet spots
         for function_to_fuzz in self.sp:
-            self.arg_fuzzer.start(function_to_fuzz, ran_fun=self.adbd.replay_ui_async, lifter=self.lifter)
+            functions_to_fuzz.append((function_to_fuzz, False, self.adbd.replay_ui_async, self.lifter))
 
+        # Regular fuzzing for automated senders
         for function_to_fuzz in self.automated_senders:
-            self.arg_fuzzer.start(function_to_fuzz, ran_fun=self.adbd.replay_ui_async, lifter=self.lifter)
+            functions_to_fuzz.append((function_to_fuzz, False, self.adbd.replay_ui_async, self.lifter))
+
+        # Fuzz the functions in parallel
+        results = [pool.apply_async(self.fuzz_function, args=args) for args in functions_to_fuzz]
+        [result.get() for result in results]  # Wait for all processes to finish
+
+        # Stop the coverage tracking
+        cov.stop()
+
+        # Save the coverage data
+        cov.xml_report(outfile='coverage.xml')
 
         # Print the fuzz count for each function
         log.info("Fuzz count for each function:")
         log.info(self.fuzz_counter_arg_fuzzer.get_fuzz_count())
 
         log.info("Fuzzing done!")
+
+        # Close the pool and wait for tasks to finish
+        pool.close()
+        pool.join()
+
+    def fuzz_function(self, function_to_fuzz, fast_fuzz, ran_fun, lifter):
+        self.arg_fuzzer.start(function_to_fuzz, fast_fuzz=fast_fuzz, ran_fun=ran_fun, lifter=lifter)
 
     def run(self, phase=Phase.FUZZING):
         if phase >= Phase.RERAN:

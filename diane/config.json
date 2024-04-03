@@ -1,0 +1,15 @@
+{
+    "android_ip": "192.168.1.100",
+    "device_ip": "192.168.1.101",
+    "ip_hot_spot": "192.168.1.1",
+    "pass_ap": "your_password",
+    "device_id": "your_device_id",
+    "reran_record_path": "/path/to/reran.log",
+    "send_functions": ["send_message1", "send_message2"],
+    "fuzzing_candidates": ["candidate_function1", "candidate_function2"],
+    "sweet_spots": ["sweet_spot_function1", "sweet_spot_function2"],
+    "proc_name": "your_process_name",
+    "apk_path": "/path/to/your/app.apk",
+    "android_sdk_platforms": ["android-29", "android-30"],
+    "leaf_pickle": false
+  }
