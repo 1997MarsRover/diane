@@ -3,6 +3,7 @@ import logging
 import os
 from os.path import dirname, abspath
 import contextlib
+import sys
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 

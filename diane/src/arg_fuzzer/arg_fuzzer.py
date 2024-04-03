@@ -4,15 +4,15 @@ import logging
 import os
 import signal
 import itertools
-from values import Values
+from .values import Values
 from pysoot.lifter import Lifter
 import sys
 from os.path import dirname, abspath
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 
-from frida_hooker import FridaHooker, ApkExploded, TransportError, FridaRunner, FridaRunnerMeta
-from crash_detector.pcap_base_detector import PcapBasedDetector
+from ..frida_hooker.frida_hooker import FridaHooker, ApkExploded, TransportError, FridaRunner, FridaRunnerMeta
+from ..crash_detector.pcap_base_detector import PcapBasedDetector
 from ui.core import ADBDriver
 
 logging.basicConfig()
@@ -399,7 +399,7 @@ class ArgFuzzer:
                     n = self.hooker.get_util_calls(method)
                     if n != 0:
                         util_method_calls = n
-                    print "Utils calls: " + str(util_method_calls)
+                    print("Utils calls: " + str(util_method_calls))
 
                 log.info("Function fuzzed {} times.".format(str(tot_reps)))
             except ApkExploded as ae:
@@ -591,7 +591,7 @@ if __name__ == "__main__":
     af.fuzz_class_fields = False
 
     if options.lifter:
-        print "Building lifter"
+        print("Building lifter")
         apk_path = config["apk_path"]
         android_sdk = config["android_sdk_platforms"]
         lifter = Lifter(apk_path, input_format="apk", android_sdk=android_sdk)
@@ -600,12 +600,12 @@ if __name__ == "__main__":
         af.replay_trace(trace_file, ran_fun=adbd.replay_ui_async)
     else:
         for s, pars in ss:
-            print "Fuzzing " + str(s)
+            print("Fuzzing " + str(s))
             if pars:
                 af.pos_fun_param_to_fuzz = pars
-                print "Paramenters " + str(pars)
+                print("Paramenters " + str(pars))
             else:
                 af.pos_fun_param_to_fuzz = None
             af.start(s, ran_fun=adbd.replay_ui_async, single_call_fuzz=True, reg_run=False, lifter=lifter)
 
-    print "DONE."
+    print("DONE.")

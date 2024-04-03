@@ -1,1 +1,1 @@
-from clusterizer import select_funcs
+from .clusterizer import select_funcs

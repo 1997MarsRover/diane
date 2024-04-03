@@ -53,7 +53,7 @@ def select_funcs(data):
 
 
 def main():
-    print 'Loading data'
+    print('Loading data')
     data = pickle.load(open(sys.argv[1], 'rb'))
 
     funcs = select_funcs(data)

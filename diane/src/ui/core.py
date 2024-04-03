@@ -4,7 +4,9 @@ import os
 import os.path
 import json
 
-from config import *
+
+from .config import *
+
 
 class UITimeoutError(Exception):
     def __init__(self, msg):

@@ -17,6 +17,16 @@ class StopCapturing(Exception):
 
 
 class Sniffer:
+    android_ip = None
+    device_ip = None
+    ip_hotspot = None
+    pass_ap = None
+    keep_alive_filters = []
+    timer = None
+    sniffing = False
+    pids = []
+    sync_sniffing = False
+
     def __init__(self, config, sniff_script="./sniff.sh", all_traffic_pcap_script="./dump_to_pcap.sh",
                  fifo_pipe="/tmp/sniff_data", sniffing_time_sec=60 * 30, keepalive_timeout_sec=60 * 1,
                  keepalive_threshold=0.5):
@@ -24,11 +34,6 @@ class Sniffer:
         self.device_ip = config['device_ip']
         self.ip_hotspot = config['ip_hot_spot']
         self.pass_ap = config['pass_ap']
-        self.keep_alive_filters = []
-        self.timer = None
-        self.sniffing = False
-        self.pids = []
-
         self.sniff_script = sniff_script
         self.all_traffic_pcap_script = all_traffic_pcap_script
         self.fifo_pipe = fifo_pipe
@@ -36,8 +41,8 @@ class Sniffer:
         self.keepalive_timeout_sec = keepalive_timeout_sec
         self.keepalive_threshold = keepalive_threshold
 
-        self.sync_sniffing = False
         signal.signal(signal.SIGUSR2, self.terminate)
+
 
     def __enter__(self):
         return self
@@ -55,7 +60,7 @@ class Sniffer:
             if e:
                 break
 
-     def clean(self):
+    def clean(self):
         # Some cleaning
         if self.timer is not None and self.timer.is_alive():
             self.timer.terminate()
@@ -114,10 +119,10 @@ class Sniffer:
         return ' and ' + ' and '.join(self.keep_alive_filters)
 
     def create_pipe(self):
-        if os.path.exists(FIFO_PIPE):
-            os.remove(FIFO_PIPE)
+        if os.path.exists(self.fifo_pipe):
+            os.remove(self.fifo_pipe)
             time.sleep(1)
-        os.mkfifo(FIFO_PIPE)
+        os.mkfifo(self.fifo_pipe)
 
     def find_pids(self, old_pids):
         pids = self.get_opened_tcpdumps()
@@ -133,7 +138,7 @@ class Sniffer:
 
     def start_capturing_traffic(self):
         self.create_pipe()
-        path_script = os.path.dirname(__file__) + '/' + SNIFF_SCRIPT
+        path_script = os.path.dirname(__file__) + '/' + self.sniff_script
         cmd = "{} {} {} {} {} {}&".format(path_script, self.pass_ap, self.ip_hotspot,
                                           self.android_ip, self.device_ip, self.apply_keepalive_filters())
         pids = self.get_opened_tcpdumps()
@@ -141,13 +146,15 @@ class Sniffer:
         time.sleep(1)
         self.find_pids(pids)
 
-    def sniff_packets(self, sniffing_time=SNIFFING_TIME_SEC, n_packets=None):
+    def sniff_packets(self, sniffing_time, n_packets=None):
+        if sniffing_time is None:
+            sniffing_time = self.sniffing_time_sec  # Use default value if not provided
         global SYNC_SNIFFING
         log.info("Sniffing packets, press CTRL+C to stop (max sniffing time: {} mins)".format(
             str(sniffing_time / 60)))
 
         self.start_capturing_traffic()
-        fifo = open(FIFO_PIPE)
+        fifo = open(self.fifo_pipe)
         counter = 0
         SYNC_SNIFFING = True
         self.timer = Process(target=self.timeout, args=(sniffing_time,))
@@ -161,7 +168,7 @@ class Sniffer:
             yield line
 
     def dump_all_traffic_to_pcap(self, pcap_path):
-        path_script = os.path.dirname(__file__) + '/' + ALL_TRAFFIC_PCAP_SCRIPT
+        path_script = os.path.dirname(__file__) + '/' + self.all_traffic_pcap_script
         cmd = "{} {} {} {}&".format(path_script, self.pass_ap, self.ip_hotspot, pcap_path)
         pids = self.get_opened_tcpdumps()
         os.system(cmd)
@@ -182,26 +189,26 @@ class Sniffer:
         self.clean()
 
 
-if __name__ == "__main__":
-    import json
+# if __name__ == "__main__":
+#     import json
 
-    config_path = '../experiments/wans/config_wans.json'
-    with open(config_path) as fp:
-        config = json.load(fp)
+#     config_path = '../experiments/wans/config_wans.json'
+#     with open(config_path) as fp:
+#         config = json.load(fp)
 
-    print "Dumping pcap to /tmp/test_capture.pcap"
-    with Sniffer(config) as sniffer:
-        sniffer.dump_all_traffic_to_pcap('/tmp/test_capture.pcap')
-        time.sleep(5)
-        sniffer.terminate()
+#     print "Dumping pcap to /tmp/test_capture.pcap"
+#     with Sniffer(config) as sniffer:
+#         sniffer.dump_all_traffic_to_pcap('/tmp/test_capture.pcap')
+#         time.sleep(5)
+#         sniffer.terminate()
 
-    print "Sniffing for 5 seconds"
-    with sniffer as sn:
-        for p in sn.sniff_packets(5):
-            print p
+#     print "Sniffing for 5 seconds"
+#     with sniffer as sn:
+#         for p in sn.sniff_packets(5):
+#             print p
 
-    print "Sniffing two packets"
-    with sniffer as sn:
-        for p in sn.sniff_packets(n_packets=2):
-            print p
-    print "DONE"
+#     print "Sniffing two packets"
+#     with sniffer as sn:
+#         for p in sn.sniff_packets(n_packets=2):
+#             print p
+#     print "DONE"

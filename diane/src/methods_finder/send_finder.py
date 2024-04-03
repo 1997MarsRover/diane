@@ -11,13 +11,13 @@ from multiprocessing import Process
 from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 
-from frida_hooker.frida_hooker import FridaHooker, ApkExploded, ApkKilled, ApkStuck, FridaRunner
+from ..frida_hooker.frida_hooker import FridaHooker, ApkExploded, ApkKilled, ApkStuck, FridaRunner
 
-from sniffer.sniffer import Sniffer
-from sniffer.bltlog_analyzer import BltLogAnalyzer
-from clusterizer import *
+from ..sniffer.sniffer import Sniffer
+from ..sniffer.bltlog_analyzer import BltLogAnalyzer
+from .clusterizer import *
 
-from ui.core import ADBDriver
+from ..ui.core import ADBDriver
 
 import logging
 
@@ -227,27 +227,27 @@ class SendFinder:
                     os.killpg(os.getpgid(self.proc_reran.pid), signal.SIGTERM)
                 log.error("Something bad happened, re-hooking")
 
-if __name__ == '__main__':
-    import json
-    from ui.core import ADBDriver
-    import sys
+# if __name__ == '__main__':
+#     import json
+#     from ui.core import ADBDriver
+#     import sys
 
-    try:
-        config_path = sys.argv[1]
-    except:
-        print "Usage: {} [config path]".format(sys.argv[0])
-        sys.exit(1)
+#     try:
+#         config_path = sys.argv[1]
+#     except:
+#         print "Usage: {} [config path]".format(sys.argv[0])
+#         sys.exit(1)
 
-    with open(config_path) as fp:
-        config = json.load(fp)
+#     with open(config_path) as fp:
+#         config = json.load(fp)
 
-    reran_record_path = config["reran_record_path"]
-    adbd = ADBDriver(f_path=reran_record_path, device_id=config['device_id'])
+#     reran_record_path = config["reran_record_path"]
+#     adbd = ADBDriver(f_path=reran_record_path, device_id=config['device_id'])
 
-    start_time = time.time()
-    senders = SendFinder(config).start(ran_fun=adbd.replay_ui_async)
-    print str(senders)
-    elapsed_time = time.time() - start_time
-    print "Time: " + str(elapsed_time)
+#     start_time = time.time()
+#     senders = SendFinder(config).start(ran_fun=adbd.replay_ui_async)
+#     print str(senders)
+#     elapsed_time = time.time() - start_time
+#     print "Time: " + str(elapsed_time)
 
-    print "Done"
+#     print "Done"

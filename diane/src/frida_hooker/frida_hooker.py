@@ -709,10 +709,10 @@ if __name__ == '__main__':
     fh.start(leaves=leaves, lifter=lifter, to_hook=methods, fast_hook=True)  # , force_hook=True)
     last = []
 
-    print "Now you can interact with the app and see which hooked methods are called."
-    print "Press ctrl+c to exit."
+    print("Now you can interact with the app and see which hooked methods are called.")
+    print("Press ctrl+c to exit.")
     while True:
         if fh.last_methods_called:
             for m in fh.last_methods_called if not show_vals else fh.last_methods_instances:
-                print str(m)
+                print(str(m))
             fh.clear_methods_called_cache()

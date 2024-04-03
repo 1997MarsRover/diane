@@ -1,5 +1,5 @@
-from arg_values.random_values import RandomValues
-from arg_values.formatted_values import FormattedValues
+from .arg_values.random_values import RandomValues
+from .arg_values.formatted_values import FormattedValues
 
 
 class Values:

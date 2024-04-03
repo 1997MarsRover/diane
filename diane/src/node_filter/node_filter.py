@@ -144,20 +144,20 @@ class NodeFilter:
     def nodes(self):
         return self.bnodes
 
-if __name__ == '__main__':
-    import json
-    import sys
+# if __name__ == '__main__':
+#     import json
+#     import sys
 
-    try:
-        config_path = sys.argv[1]
-    except:
-        print "Usage: {} [config path]".format(sys.argv[0])
-        sys.exit(1)
+#     try:
+#         config_path = sys.argv[1]
+#     except:
+#         print("Usage: {} [config path]".format(sys.argv[0]))
+#         sys.exit(1)
 
-    with open(config_path) as fp:
-        config = json.load(fp)
+#     with open(config_path) as fp:
+#         config = json.load(fp)
 
-    nf = NodeFilter(config, reload=True)
-    print len(nf.nodes)
-    import ipdb; ipdb.set_trace()
-    print "Done"
+#     nf = NodeFilter(config, reload=True)
+#     print len(nf.nodes)
+#     import ipdb; ipdb.set_trace()
+#     print"Done"

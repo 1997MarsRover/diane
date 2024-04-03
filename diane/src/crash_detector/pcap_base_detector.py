@@ -1,8 +1,8 @@
-from base_detector import DefaultCrashDetector
+from .base_detector import DefaultCrashDetector
 import os
 import random
 import string
-from pcap_analysis import PCAPAnalyzer
+from .pcap_analysis import PCAPAnalyzer
 
 import logging
 logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s')
@@ -169,34 +169,34 @@ class PcapBasedDetector(DefaultCrashDetector):
 
         return is_size_ok & is_conn_ok
 
-if __name__ == '__main__':
-    from ui.core import ADBDriver
-    from frida_hooker.frida_hooker import FridaHooker
-    import sys
-    import json
+# if __name__ == '__main__':
+#     from ui.core import ADBDriver
+#     from frida_hooker.frida_hooker import FridaHooker
+#     import sys
+#     import json
 
 
-    try:
-        config_path = sys.argv[1]
-    except:
-        print "Usage: {} [config path]".format(sys.argv[0])
-        sys.exit(1)
+#     try:
+#         config_path = sys.argv[1]
+#     except:
+#         print "Usage: {} [config path]".format(sys.argv[0])
+#         sys.exit(1)
 
-    with open(config_path) as fp:
-        config = json.load(fp)
+#     with open(config_path) as fp:
+#         config = json.load(fp)
 
-    # build objs
-    fh = FridaHooker(config)
-    pbd = PcapBasedDetector(config)
-    reran_record_path = config["reran_record_path"]
-    adbd = ADBDriver(f_path=reran_record_path, device_id=config['device_id'])
+#     # build objs
+#     fh = FridaHooker(config)
+#     pbd = PcapBasedDetector(config)
+#     reran_record_path = config["reran_record_path"]
+#     adbd = ADBDriver(f_path=reran_record_path, device_id=config['device_id'])
 
-    fh.start()
-    pbd.start_normal_run()
-    adbd.replay_ui()
-    assert pbd.stop_normal_run()
+#     fh.start()
+#     pbd.start_normal_run()
+#     adbd.replay_ui()
+#     assert pbd.stop_normal_run()
 
-    unique_key = pbd.start_reg_run()
-    adbd.replay_ui()
-    pbd.verify_reg_run(unique_key)
-    raw_input()
+#     unique_key = pbd.start_reg_run()
+#     adbd.replay_ui()
+#     pbd.verify_reg_run(unique_key)
+#     raw_input()

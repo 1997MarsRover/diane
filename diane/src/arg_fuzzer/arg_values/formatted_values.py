@@ -2,8 +2,8 @@ import json
 import re
 import random
 import os
-from random_values import RandomValues
-from pcapreader.pcapreader import PcapReader
+from .random_values import RandomValues
+from .pcapreader.pcapreader import PcapReader
 # from keyhunter.key_hunter import KeyHunter
 
 OPEN_PLACEHOLDER = '<<-<<'
@@ -121,15 +121,15 @@ class FormattedValues:
             obj_creator('byte', True, val, len(val), *kargs, **kwargs)
         return val
 
-if __name__ == '__main__':
-    config_path = '../experiments/insteon/config_insteon.json'
-    #config_path = '../experiments/weemo/config_weemo.json'
-    empty_f = lambda *a, **b: None
+# if __name__ == '__main__':
+#     config_path = '../experiments/insteon/config_insteon.json'
+#     #config_path = '../experiments/weemo/config_weemo.json'
+#     empty_f = lambda *a, **b: None
 
-    with open(config_path) as fp:
-        config = json.load(fp)
-    fv = FormattedValues(config)
-    for i in range(10):
-        res = fv.fuzz_java_lang_String(empty_f)
-        print res.replace('\\xa', '\n')
-        import ipdb; ipdb.set_trace()
+#     with open(config_path) as fp:
+#         config = json.load(fp)
+#     fv = FormattedValues(config)
+#     for i in range(10):
+#         res = fv.fuzz_java_lang_String(empty_f)
+#         print res.replace('\\xa', '\n')
+#         import ipdb; ipdb.set_trace()

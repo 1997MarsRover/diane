@@ -156,19 +156,19 @@ class RandomValues:
     def fuzz_java_nio_ByteBuffer(self, obj_creator, *kargs, **kwargs):
         return self.fuzz_type('java.nio.ByteBuffer', obj_creator, True, True, *kargs, **kwargs)
 
-if __name__ == "__main__":
-    types = ['int', 'byte', 'java.lang.Integer', 'java.lang.String', 'boolean', 'java.lang.Double', 'java.lang.Float']
-    arrays = [True, False]
-    v = Values()
-    empty_method = lambda *kargs, **kwargs: None
+# if __name__ == "__main__":
+#     types = ['int', 'byte', 'java.lang.Integer', 'java.lang.String', 'boolean', 'java.lang.Double', 'java.lang.Float']
+#     arrays = [True, False]
+#     v = Values()
+#     empty_method = lambda *kargs, **kwargs: None
 
-    for t in types:
-        method = 'fuzz_' + t.replace('.', '_')
-        if hasattr(v, method):
-            print t
-            print getattr(v, method)(empty_method)
+#     for t in types:
+#         method = 'fuzz_' + t.replace('.', '_')
+#         if hasattr(v, method):
+#             print(t)
+#             print(getattr(v, method)(empty_method))
 
-        method = 'fuzz_' + t.replace('.', '_') + '_array'
-        if hasattr(v, method):
-            print t + ' array'
-            print getattr(v, method)(empty_method)
+#         method = 'fuzz_' + t.replace('.', '_') + '_array'
+#         if hasattr(v, method):
+#             print(t + ' array')
+#             print(getattr(v, method)(empty_method))
