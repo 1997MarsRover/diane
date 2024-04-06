@@ -10,7 +10,7 @@ from ..frida_hooker.frida_hooker import FridaHooker, ApkExploded, ApkKilled, Apk
 from pysoot.lifter import Lifter
 from node_filter.node_filter import NodeFilter
 import androguard
-# from androguard.core.bytecodes.dvm_types import TYPE_DESCRIPTOR
+from androguard.decompiler.util import TYPE_DESCRIPTOR
 import turi
 from turi.utils import walk_all_statements
 from turi.common import x_ref
@@ -29,22 +29,22 @@ class Dep(Enum):
     RET = 0
     ARG = 1
 
-# def dex_to_name(n):
-#     if n == "":
-#         return ""
-#     is_array = ""
-#     # FIXME what about n-dimensional arrays?
-#     if n.startswith("["):
-#         is_array = "[]"
-#         n = n[1:]
-#     if n in TYPE_DESCRIPTOR:
-#         return "{}{}".format(TYPE_DESCRIPTOR[n], is_array)
-#     else:
-#         # assume class
-#         n = n.replace('/', '.').strip().strip(';')
-#         if n.startswith('L'):
-#             n = n[1:]
-#         return "{}{}".format(n, is_array)
+def dex_to_name(n):
+    if n == "":
+        return ""
+    is_array = ""
+    # FIXME what about n-dimensional arrays?
+    if n.startswith("["):
+        is_array = "[]"
+        n = n[1:]
+    if n in TYPE_DESCRIPTOR:
+        return "{}{}".format(TYPE_DESCRIPTOR[n], is_array)
+    else:
+        # assume class
+        n = n.replace('/', '.').strip().strip(';')
+        if n.startswith('L'):
+            n = n[1:]
+        return "{}{}".format(n, is_array)
 
 @FridaRunner
 class SweetSpotFinder:

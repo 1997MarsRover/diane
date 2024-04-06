@@ -43,4 +43,4 @@ PACKET_TIMEOUT = 5
 FUZZING_ITERATIONS = 100
 
 # Number of processes to use for parallel fuzzing
-FUZZING_PROCESSES = 4
+FUZZING_PROCESSES = 2
