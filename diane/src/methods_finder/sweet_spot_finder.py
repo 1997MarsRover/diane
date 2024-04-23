@@ -693,54 +693,54 @@ class SweetSpotFinder:
         self.clean_ss()
         return self.sweet_spots, self.sweet_objs
 
-# if __name__ == "__main__":
-    # from ui.core import ADBDriver
+if __name__ == "__main__":
+    from ui.core import ADBDriver
 
-    # try:
-    #     config_path = sys.argv[1]
-    # except:
-    #     print "Usage: {} [config path]".format(sys.argv[0])
-    #     sys.exit(1)
+    try:
+        config_path = sys.argv[1]
+    except:
+        print "Usage: {} [config path]".format(sys.argv[0])
+        sys.exit(1)
 
-    # with open(config_path) as fp:
-    #     config = json.load(fp)
+    with open(config_path) as fp:
+        config = json.load(fp)
 
-    # tot_start_time = time.time()
-    # log_path = '/tmp/sweet_spots_log.' + config['proc_name']
-    # fp = open(log_path, 'w')
+    tot_start_time = time.time()
+    log_path = '/tmp/sweet_spots_log.' + config['proc_name']
+    fp = open(log_path, 'w')
 
-    # methods = config['send_functions']
-    # reran_record_path = config["reran_record_path"]
+    methods = config['send_functions']
+    reran_record_path = config["reran_record_path"]
 
-    # start_time = time.time()
-    # adbd = ADBDriver(f_path=reran_record_path, device_id=config['device_id'])
-    # ssf = SweetSpotFinder(config)
-    # res = []
-    # so = []
-    # FAILED = []
-    # for m in methods:
-    #     fp = open('/tmp/sweet_spots_' + config['proc_name'], 'a')
-    #     fp.write("****************************************************************************")
-    #     fp.write(str(m))
-    #     fp.write('\n')
+    start_time = time.time()
+    adbd = ADBDriver(f_path=reran_record_path, device_id=config['device_id'])
+    ssf = SweetSpotFinder(config)
+    res = []
+    so = []
+    FAILED = []
+    for m in methods:
+        fp = open('/tmp/sweet_spots_' + config['proc_name'], 'a')
+        fp.write("****************************************************************************")
+        fp.write(str(m))
+        fp.write('\n')
 
-    #     try:
-    #         last_res, last_so = ssf.start(m, ran_fun=adbd.replay_ui_async)
-    #     except Exception as e:
-    #         fp.write("ERRORED");
-    #         continue
+        try:
+            last_res, last_so = ssf.start(m, ran_fun=adbd.replay_ui_async)
+        except Exception as e:
+            fp.write("ERRORED");
+            continue
 
-    #     res += last_res
-    #     so += last_so
-    #     fp.write(str(last_res))
-    #     fp.write('\n')
-    #     fp.write(str(last_so))
-    #     fp.write('\n\n')
-    #     fp.close()
+        res += last_res
+        so += last_so
+        fp.write(str(last_res))
+        fp.write('\n')
+        fp.write(str(last_so))
+        fp.write('\n\n')
+        fp.close()
 
-    # tot_elapsed_time = time.time() - tot_start_time
-    # print "Time (s): " + str(tot_elapsed_time)
-    # print res
-    # print so
-    # import ipdb; ipdb.set_trace()
-    # print "Done"
+    tot_elapsed_time = time.time() - tot_start_time
+    print("Time (s): " + str(tot_elapsed_time)
+    print(res)
+    print(so)
+    import ipdb; ipdb.set_trace()
+    print("Done")
