@@ -11,7 +11,8 @@ import os
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 from pysoot.lifter import Lifter
-from androguard.core.bytecodes.dvm_types import TYPE_DESCRIPTOR
+import androguard
+from androguard.decompiler.util import TYPE_DESCRIPTOR
 import turi
 from turi.utils import walk_all_statements
 from turi.common import x_ref
@@ -58,7 +59,7 @@ def dex_to_name(n):
 
 class SweetSpotFinder:
     def __init__(self, apk_path):
-        sdk_path = os.path.join(os.path.expanduser("~"), "Android/Sdk/platforms/")
+        sdk_path = "/home/mars_rover/Android/platforms"
         if not os.path.exists(sdk_path):
             print("cannot run test_apk_loading since there is no Android SDK folder")
             sys.exit(1)
