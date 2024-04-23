@@ -19,7 +19,7 @@ import os
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 from pysoot.lifter import Lifter
-from androguard.core.bytecodes.dvm_types import TYPE_DESCRIPTOR
+from androguard.decompiler.util import TYPE_DESCRIPTOR
 import turi
 from turi.utils import walk_all_statements
 from turi.common import x_ref
@@ -64,11 +64,28 @@ def dex_to_name(n):
             n = n[1:]
         return "{}{}".format(n, is_array)
 
-
 def get_main_activity(apk):
-    p = sp.Popen('aapt dump badging {} | grep launchable-activity'.format(apk), stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
-    o, e = p.communicate()
-    return o.decode('utf-8').split("name='")[1].split("'")[0] + '.onCreate'
+    try:
+        # Execute the aapt command and capture the output
+        p = sp.Popen(
+            'aapt dump badging {} | grep launchable-activity'.format(apk),
+            stdout=sp.PIPE,
+            stderr=sp.PIPE,
+            shell=True
+        )
+        o, e = p.communicate()
+
+        # Decode the output and split it to extract the activity name
+        output_str = o.decode('utf-8').strip()
+        if output_str:
+            activity_name = output_str.split("name=")[1].split(" ")[0]
+            return activity_name + '.onCreate'
+        else:
+            print("Error: No output from the command.")
+            return None
+    except Exception as e:
+        print("Error occurred:", e)
+        return None
 
 
 def get_new_object_arg(obj_ref, is_this_ref=False):
@@ -88,7 +105,7 @@ def get_new_primitive_arg(value, type_):
     """
     Wraps a primitive value so it so it can be used as a parameter for a method
 
-    :param value: the value of the primitiva value.
+    :param value: the value of the primitive value.
     :type BV
     :param value: the type of the primitive value (int, boolean, etc.)
     :type str
@@ -99,7 +116,7 @@ def get_new_primitive_arg(value, type_):
 
 class SweetSpotFinder:
     def __init__(self, apk_path):
-        sdk_path = os.path.join(os.path.expanduser("~"), "Android/Sdk/platforms/")
+        sdk_path = "/home/mars_rover/Android/platforms"
         if not os.path.exists(sdk_path):
             print("cannot run test_apk_loading since there is no Android SDK folder")
             sys.exit(1)
